@@ -3,6 +3,7 @@ from django.shortcuts import render
 # Create your views here.
 
 import json
+import decimal
 
 from django.db import transaction
 from django.http import HttpResponse, JsonResponse
@@ -118,7 +119,7 @@ def recharge(request):
 
     with transaction.atomic():
         user = BankUser.objects.get(id=user_id)
-        user.money += money
+        user.money += decimal.Decimal(money)
         user.save()
         record = BankRechargeRecord(money=money, card_no=card_no, user_id=user_id, balance=user.money)
         record.save()
@@ -129,6 +130,7 @@ def recharge(request):
 @check_login
 @require_POST
 def with_drawal(request):
+    # 提现接口
     resp_data = API_RESPONSE_FORMAT.copy()
 
     body_dict = json.loads(request.body)  # 传递的是 money 和 pay_password 和 card_no
@@ -149,7 +151,7 @@ def with_drawal(request):
 
     with transaction.atomic():
         user = BankUser.objects.get(id=user_id)
-        user.money -= money
+        user.money -= decimal.Decimal(money)
         user.save()
         record = WithDrawalRecord(money=money, card_no=card_no, user_id=user_id, balance=user.money)
         record.save()
@@ -184,7 +186,7 @@ def transfer_accounts(request):
 
     with transaction.atomic():
         user = BankUser.objects.get(id=user_id)
-        user.money -= money
+        user.money -= decimal.Decimal(money)
         user.save()
         record = TransferAccountsRecord(money=money, balance=user.money, payee_name=name, payee_phone=phone,
                                         payee_id=payee.id
@@ -212,7 +214,7 @@ def add_card(request):
         resp_data.update({'message': '提交的信息不能为空', 'success': False, 'code': 501})  # 提交数据不全
         return JsonResponse(resp_data)
     user = BankUser.objects.get(id=user_id)
-    if user.id_number != card_no:
+    if user.id_number != id_number:
         resp_data.update({'message': '身份证号码错误', 'success': False, 'code': 506})  # 身份证号码不正确
         return JsonResponse(resp_data)
     card = UserBankCard(user_id=user_id, card_no=card_no)
@@ -248,7 +250,7 @@ def recharge_phone_bill(request):
 
     with transaction.atomic():
         user = BankUser.objects.get(id=user_id)
-        user.money -= money
+        user.money -= decimal.Decimal(money)
         user.save()
         record = RechargePhoneBillRecord(user_id=user_id, name=name, pay_money=money, balance=user.money)
         record.save()
@@ -264,7 +266,7 @@ def buy_stock(request):
 
     user_id = request.session.get('user_id')
 
-    body_dict = json.loads(request.body)  # money， stock_number
+    body_dict = json.loads(request.body)  # money， stock_number, pay_password
     money = body_dict.get('money')
     stock_number = body_dict.get('stock_number')
     pay_password = body_dict.get('pay_password')
@@ -279,7 +281,7 @@ def buy_stock(request):
 
     with transaction.atomic():
         user = BankUser.objects.get(id=user_id)
-        user.money -= money
+        user.money -= decimal.Decimal(money)
         user.save()
         record = BuyStockRecord(user_id=user_id, stock_number=stock_number, money=money, balance=user.money)
         record.save()

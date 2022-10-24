@@ -23,7 +23,7 @@ class BankUser(models.Model, BaseModelMinxin):
     login_password = models.CharField(max_length=32)  # 密码hash后存储
     pay_password = models.CharField(max_length=32)
     qx = models.CharField(max_length=200)
-    money = models.DecimalField(max_digits=12, decimal_places=2)
+    money = models.DecimalField(max_digits=12, decimal_places=2, default=0)
 
     @classmethod
     def create(cls, id_number, account, name, sex, phone, login_password, pay_password, qx, money=0, **kwargs):
