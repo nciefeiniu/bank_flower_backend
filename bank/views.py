@@ -212,6 +212,10 @@ def transfer_accounts(request):
         resp_data.update({'message': '对方账户不存在', 'success': False, 'code': 505})  # 对方账户不存在
         return JsonResponse(resp_data)
 
+    if float(BankUser.objects.get(id=user_id).money) < float(money):
+        resp_data.update({'message': '余额不足', 'success': False, 'code': 510})  # 余额不足
+        return JsonResponse(resp_data)
+
     payee = BankUser.objects.get(name=name, phone=phone)
 
     with transaction.atomic():
@@ -283,6 +287,11 @@ def recharge_phone_bill(request):
         resp_data.update({'message': '用户名错误，请重新输入', 'success': False, 'code': 507})  # 用户名错误
         return JsonResponse(resp_data)
 
+    if float(BankUser.objects.get(id=user_id).money) < float(money):
+        resp_data.update({'message': '余额不足', 'success': False, 'code': 510})  # 余额不足
+        return JsonResponse(resp_data)
+
+
     with transaction.atomic():
         user = BankUser.objects.get(id=user_id)
         user.money -= decimal.Decimal(money)
@@ -312,6 +321,10 @@ def buy_stock(request):
 
     if not BankUser.objects.filter(id=user_id, pay_password=get_md5_salt(pay_password)).exists():
         resp_data.update({'message': '支付密码错误，请重新输入', 'success': False, 'code': 503})  # 账户密码不匹配
+        return JsonResponse(resp_data)
+
+    if float(BankUser.objects.get(id=user_id).money) < float(money):
+        resp_data.update({'message': '余额不足', 'success': False, 'code': 510})  # 余额不足
         return JsonResponse(resp_data)
 
     with transaction.atomic():
