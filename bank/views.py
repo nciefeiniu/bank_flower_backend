@@ -223,12 +223,11 @@ def transfer_accounts(request):
         user.money -= decimal.Decimal(money)
         user.save()
         record = TransferAccountsRecord(money=money, balance=user.money, payee_name=name, payee_phone=phone,
-                                        payee_id=payee.id
+                                        payee_id=payee.id, user_id=user_id
                                         )
         record.save()
-        payee.money += money
+        payee.money += decimal.Decimal(money)
         payee.save()
-    resp_data.update({'message': 'ok', 'success': True})
     return JsonResponse(resp_data)
 
 
