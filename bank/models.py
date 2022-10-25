@@ -39,6 +39,7 @@ class UserBankCard(models.Model):
     update_time = models.DateTimeField(default=timezone.now)
     user_id = models.IntegerField('用户ID')
     card_no = models.CharField(max_length=100)
+    is_delete = models.BooleanField('是否删除', default=False)
 
 
 class BankRechargeRecord(models.Model):

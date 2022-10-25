@@ -738,7 +738,7 @@ FakesAssemblies/
 .ntvs_analysis.dat
 node_modules/
 
-# Visual Studio 6 build log
+# Visual Studio 6 build django_log
 *.plg
 
 # Visual Studio 6 workspace options file
@@ -811,5 +811,6 @@ MigrationBackup/
 
 venv/
 .idea
+*.log
 
 
