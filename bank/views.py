@@ -319,9 +319,10 @@ def buy_stock(request):
         resp_data.update({'message': '提交的信息不能为空', 'success': False, 'code': 501})  # 提交数据不全
         return JsonResponse(resp_data)
 
-    if not BankUser.objects.filter(id=user_id, pay_password=get_md5_salt(pay_password)).exists():
-        resp_data.update({'message': '支付密码错误，请重新输入', 'success': False, 'code': 503})  # 账户密码不匹配
-        return JsonResponse(resp_data)
+    # TODO 这里暂时解决下，不需要支付密码
+    # if not BankUser.objects.filter(id=user_id, pay_password=get_md5_salt(pay_password)).exists():
+    #     resp_data.update({'message': '支付密码错误，请重新输入', 'success': False, 'code': 503})  # 账户密码不匹配
+    #     return JsonResponse(resp_data)
 
     if float(BankUser.objects.get(id=user_id).money) < float(money):
         resp_data.update({'message': '余额不足', 'success': False, 'code': 510})  # 余额不足
@@ -333,6 +334,12 @@ def buy_stock(request):
         user.save()
         record = BuyStockRecord(user_id=user_id, stock_number=stock_number, money=money, balance=user.money)
         record.save()
+    resp_data.update({
+        'data': {
+            'purchase_amount': money,
+            'balance': user.money
+        }
+    })
     return JsonResponse(resp_data)
 
 
