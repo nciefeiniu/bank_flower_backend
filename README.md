@@ -48,4 +48,5 @@ python manage.py runserver 0.0.0.0:8081
 1. 网页端通过 [http://127.0.0.1:8081/manager/index/](http://127.0.0.1:8081/manager/index/) 这个连接打开即可
 
 2. 安卓手机端请修改 `com/example/phonewallet11/ApiBaseUrl.java` 文件里面的服务地址。
-注意，因为安卓手机和PC不是一个环境，接口地址肯定不是 http://127.0.0.1，应该修改为你电脑从路由器上获取的IP地址，比如 http://192.168.3.1
+注意，因为安卓手机和PC不是一个环境，接口地址肯定不是 http://127.0.0.1
+应该修改为你电脑从路由器上获取的IP地址，比如 http://192.168.3.1
