@@ -1,6 +1,8 @@
 # 手机app的后端项目以及网页版
 > python 3.7 + mysql 8
 
+推荐使用 [PyCharm](https://www.jetbrains.com/pycharm/) 启动
+
 安卓手机使用的是 `bank/api/` 的URL
 
 网页管理端使用的是 `manager/` 的URL
