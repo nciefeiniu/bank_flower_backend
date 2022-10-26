@@ -1,6 +1,8 @@
 # !/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import logging
+
 from datetime import datetime
 
 from django.shortcuts import render
@@ -11,6 +13,8 @@ from .models import ManagerUser, RechargePhoneBillRecord, BuyStockRecord, WithDr
 from utils.compute_md5 import get_md5_salt
 from utils.check_login import check_login_redirect
 from django.shortcuts import redirect
+
+logger = logging.getLogger(__name__)
 
 menu_list = ['充值记录', '提现记录', '转账记录', '所有银行卡记录', '话费充值记录', '股票购买记录', '所有app用户']
 menu_type = ['recharge', 'with_drawal', 'transfer_accounts', 'cards', 'recharge_phone_bill', 'buy_stock',
@@ -55,14 +59,14 @@ def manager_index(request):
         ]
         content['type_zh'] = menu_list[menu_type.index(_type)]
 
-
     if _type == 'recharge':
-        content['datas'] = [{'用户ID': row.user_id, '充值时间': row.create_time.strftime('%Y-%m-%d %H:%M:%S'), '充值金额': row.money,
-                             '充值银行卡号': row.card_no, '充值后余额': row.balance, '用户账号': row.account,
-                             '用户名': row.name, '用户手机号码': row.phone, '用户当前余额': row.lastest_money,
-                             } for row in BankRechargeRecord.objects.raw(
-            "select a.*, b.account,b.name,b.sex,b.phone,b.money as lastest_money from bank_bankrechargerecord a left join bank_bankuser b on a.user_id=b.id order by a.create_time desc; "
-        )]
+        content['datas'] = [
+            {'用户ID': row.user_id, '充值时间': row.create_time.strftime('%Y-%m-%d %H:%M:%S'), '充值金额': row.money,
+             '充值银行卡号': row.card_no, '充值后余额': row.balance, '用户账号': row.account,
+             '用户名': row.name, '用户手机号码': row.phone, '用户当前余额': row.lastest_money,
+             } for row in BankRechargeRecord.objects.raw(
+                "select a.*, b.account,b.name,b.sex,b.phone,b.money as lastest_money from bank_bankrechargerecord a left join bank_bankuser b on a.user_id=b.id order by a.create_time desc; "
+            )]
     elif _type == 'with_drawal':
         content['datas'] = [
             {'用户ID': row.user_id, '提现时间': row.create_time.strftime('%Y-%m-%d %H:%M:%S'), '提现金额': row.money,
@@ -82,7 +86,7 @@ def manager_index(request):
             )]
     elif _type == 'cards':
         content['datas'] = [
-            {'用户ID': row.user_id, '添加时间': row.create_time.strftime('%Y-%m-%d %H:%M:%S'),'银行卡号': row.card_no,
+            {'用户ID': row.user_id, '添加时间': row.create_time.strftime('%Y-%m-%d %H:%M:%S'), '银行卡号': row.card_no,
              '是否已删除': '已删除' if row.is_delete else '正常',
              '用户账号': row.account,
              '用户名': row.name, '用户手机号码': row.phone, '用户当前余额': row.lastest_money,
@@ -111,10 +115,11 @@ def manager_index(request):
         content['datas'] = [{
             '用户ID': row.id, '加入时间': row.create_time.strftime('%Y-%m-%d %H:%M:%S'),
             '身份证号码': row.id_number, '账号': row.account, '实名用户': row.name, '性别': row.sex,
-            '手机号码': row.phone, 'qx': row.qx, '用户当前余额': row.money, '是否被禁止使用': '正常' if not row.is_blocked else '🈲️', '编辑': 'edit'
+            '手机号码': row.phone, 'qx': row.qx, '用户当前余额': row.money, '是否被禁止使用': '正常' if not row.is_blocked else '🈲️',
+            '编辑': 'edit'
         } for row in BankUser.objects.all().order_by('-create_time')]
     content['keys'] = list(content['datas'][0].keys())
-    print(content['menus'])
+    logger.debug(content['menus'])
     return render(request, 'index.html', content)
 
 
@@ -148,5 +153,57 @@ def register_handle(request):
 
 
 @require_GET
-def search_record(request):
-    type = request.GET.get('type')
+@check_login_redirect('/manager/login/')
+def edit_user(request):
+    # 用户编辑页面
+    account = request.session.get('account')
+
+    user_id = request.GET.get('user_id')
+    success_message = request.GET.get('edit_success')
+
+    content = {'account': account}
+
+    content['menus'] = [
+        {'value': row, 'actived': '', 'path': menu_path[index]} for index, row in
+        enumerate(menu_list)
+    ]
+    content['type_zh'] = '修改用户信息'
+
+    user = BankUser.objects.get(id=user_id)
+
+    content['user_data'] = {
+        'id_number': user.id_number,
+        'name': user.name,
+        'phone': user.phone,
+        'sex': user.sex,
+        'is_blocked': user.is_blocked,
+        'user_id': user.id,
+    }
+
+    if success_message:
+        content['messages'] = [
+            {'alert': 'alert-success', 'value': '修改信息成功！'}
+        ]
+
+    return render(request, 'edit.html', content)
+
+
+@require_POST
+@check_login_redirect('/manager/login/')
+def handle_edit(request):
+    id_number = request.POST['inputID']
+    name = request.POST['inputName']
+    sex = request.POST['inputSex']
+    phone = request.POST['inputPhone']
+    is_blocked = False if request.POST.get('isBlocked', 'off') == 'off' else True
+    user_id = request.POST['userId']
+
+    user = BankUser.objects.get(id=user_id)
+    user.id_number = id_number
+    user.name = name
+    user.sex = sex
+    user.phone = phone
+    user.is_blocked = is_blocked
+    user.save()
+
+    return redirect(f'/manager/edit/?user_id={user_id}&edit_success=1')

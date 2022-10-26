@@ -13,6 +13,8 @@ urlpatterns = [
     path('login_handle/', manager_view.login_handle, name='login_handle'),
     path('register_handle/', manager_view.register_handle, name='register_handle'),
     path('index/', manager_view.manager_index, name='manager_index'),
+    path('edit/', manager_view.edit_user, name='edit_user'),
+    path('handle_edit/', manager_view.handle_edit, name='handle_edit'),
 
 ]
 
