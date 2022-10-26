@@ -115,7 +115,7 @@ def manager_index(request):
         } for row in BankUser.objects.all().order_by('-create_time')]
     content['keys'] = list(content['datas'][0].keys())
     print(content['menus'])
-    return render(request, 'manager_base.html', content)
+    return render(request, 'index.html', content)
 
 
 @require_POST

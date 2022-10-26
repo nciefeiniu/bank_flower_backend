@@ -1,0 +1,44 @@
+
+
+{% extends "manager_base.html" %}
+
+{% block content %}
+<div class="main-container">
+    <div class="padding">
+        <div class="box">
+            <div class="heading">
+                <h3 class="title">{{ type_zh }}</h3>
+            </div>
+
+            <div class="box-inner">
+                <div>
+                    <table class="table table-hover">
+                        <tr>
+                            {% for key in keys %}
+                                <th>{{ key }}</th>
+                            {% endfor %}
+                        </tr>
+                        {% for row in datas %}
+
+                            <tr>
+                                {% for d in row.values %}
+
+                                    <td class="info">
+                                        {% if d == 'edit' %}
+                                            <button class="btn btn-info">编辑</button>
+                                        {% else %}
+                                            {{ d }}
+                                        {% endif %}
+                                    </td>
+                                {% endfor %}
+                            </tr>
+                        {% endfor %}
+
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}
