@@ -21,6 +21,7 @@ class BankUser(models.Model):
     pay_password = models.CharField(max_length=32)
     qx = models.CharField(max_length=200)
     money = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    is_blocked = models.BooleanField('是否被封禁', default=False)
 
     @classmethod
     def create(cls, id_number, account, name, sex, phone, login_password, pay_password, qx, money=0, **kwargs):
@@ -96,3 +97,21 @@ class BuyStockRecord(models.Model):
     money = models.DecimalField('购买金额', max_digits=12, decimal_places=2)
     stock_number = models.CharField('股票编号，也就是股票代码', max_length=200)
     balance = models.DecimalField('购买后，账户余额', max_digits=12, decimal_places=2)
+
+
+class ManagerUser(models.Model):
+    # 管理员账号
+
+    id = models.AutoField(primary_key=True)
+    create_time = models.DateTimeField(default=timezone.now)
+    update_time = models.DateTimeField(default=timezone.now)
+    account = models.CharField('账号', max_length=200)
+    password = models.CharField(max_length=32)  # 密码hash后存储
+    is_delete = models.BooleanField('是否删除', default=False)
+
+    @classmethod
+    def create(cls, account, password):
+        user = cls(account=account,
+                   password=get_md5_salt(password)
+                   )
+        return user

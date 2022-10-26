@@ -16,6 +16,7 @@ from bank.models import BankUser, BankRechargeRecord, WithDrawalRecord, Transfer
     UserBankCard, RechargePhoneBillRecord, BuyStockRecord
 from bank.default import API_RESPONSE_FORMAT
 from utils.compute_md5 import get_md5_salt
+from utils.check_login import check_login
 
 
 logger = logging.getLogger(__name__)
@@ -24,17 +25,6 @@ logger = logging.getLogger(__name__)
 def get_model_fields(model) -> list:
     fields = [field.name for field in model._meta.get_fields()]
     return fields
-
-
-def check_login(fn):
-    def wrapper(request,*args,**kwargs):
-        if request.session.get('is_login', 'false') == 'true':
-            return fn(request,*args,*kwargs)
-        else:
-            response = HttpResponse('')
-            response.status_code = 555  # 555 需要登录
-            return response
-    return wrapper
 
 
 @require_POST
@@ -105,6 +95,11 @@ def login(request):
         resp_data.update({'message': '账号或密码错误，请重新输入', 'success': False, 'code': 503})  # 账户密码不匹配
         return JsonResponse(resp_data)
     user = BankUser.objects.get(account=account)
+
+    if user.is_blocked:
+        resp_data.update({'message': '该账号已被禁止使用，请联系管理员', 'success': False, 'code': 701})  # 账号被封禁
+        return JsonResponse(resp_data)
+
     request.session['is_login'] = 'true'
     request.session['account'] = account
     request.session['user_id'] = user.id

@@ -37,7 +37,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'bank.apps.BankConfig'
+    'bank.apps.BankConfig',
 ]
 
 MIDDLEWARE = [
@@ -204,3 +204,8 @@ LOGGING = {
         }
     },
 }
+
+
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, "static"),
+]
