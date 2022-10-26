@@ -61,7 +61,7 @@ def manager_index(request):
                              '充值银行卡号': row.card_no, '充值后余额': row.balance, '用户账号': row.account,
                              '用户名': row.name, '用户手机号码': row.phone, '用户当前余额': row.lastest_money,
                              } for row in BankRechargeRecord.objects.raw(
-            "select a.*, b.account,b.name,b.sex,b.phone,b.money as lastest_money from bank_bankrechargerecord a left join bank_bankuser b on a.user_id=b.id; "
+            "select a.*, b.account,b.name,b.sex,b.phone,b.money as lastest_money from bank_bankrechargerecord a left join bank_bankuser b on a.user_id=b.id order by a.create_time desc; "
         )]
     elif _type == 'with_drawal':
         content['datas'] = [
@@ -69,7 +69,7 @@ def manager_index(request):
              '提现银行卡号': row.card_no, '提现后余额': row.balance, '用户账号': row.account,
              '用户名': row.name, '用户手机号码': row.phone, '用户当前余额': row.lastest_money,
              } for row in WithDrawalRecord.objects.raw(
-                "select a.*, b.account,b.name,b.sex,b.phone,b.money as lastest_money from bank_withdrawalrecord a left join bank_bankuser b on a.user_id=b.id; "
+                "select a.*, b.account,b.name,b.sex,b.phone,b.money as lastest_money from bank_withdrawalrecord a left join bank_bankuser b on a.user_id=b.id order by a.create_time desc; "
             )]
     elif _type == 'transfer_accounts':
         content['datas'] = [
@@ -78,7 +78,7 @@ def manager_index(request):
              '用户名': row.name, '用户手机号码': row.phone, '用户当前余额': row.lastest_money,
              '收款人名': row.payee_name, '收款人手机号码': row.payee_phone
              } for row in TransferAccountsRecord.objects.raw(
-                "select a.*, b.account,b.name,b.sex,b.phone,b.money as lastest_money from bank_transferaccountsrecord a left join bank_bankuser b on a.user_id=b.id; "
+                "select a.*, b.account,b.name,b.sex,b.phone,b.money as lastest_money from bank_transferaccountsrecord a left join bank_bankuser b on a.user_id=b.id order by a.create_time desc; "
             )]
     elif _type == 'cards':
         content['datas'] = [
@@ -87,7 +87,7 @@ def manager_index(request):
              '用户账号': row.account,
              '用户名': row.name, '用户手机号码': row.phone, '用户当前余额': row.lastest_money,
              } for row in UserBankCard.objects.raw(
-                "select a.*, b.account,b.name,b.sex,b.phone,b.money as lastest_money from bank_userbankcard a left join bank_bankuser b on a.user_id=b.id "
+                "select a.*, b.account,b.name,b.sex,b.phone,b.money as lastest_money from bank_userbankcard a left join bank_bankuser b on a.user_id=b.id order by a.create_time desc;"
             )]
     elif _type == 'recharge_phone_bill':
         content['datas'] = [
@@ -96,7 +96,7 @@ def manager_index(request):
              '充值话费后余额': row.balance, '用户账号': row.account,
              '用户名': row._name, '用户手机号码': row.phone, '用户当前余额': row.lastest_money,
              } for row in TransferAccountsRecord.objects.raw(
-                "select a.*, b.account,b.name as _name,b.sex,b.phone,b.money as lastest_money from bank_rechargephonebillrecord a left join bank_bankuser b on a.user_id=b.id; "
+                "select a.*, b.account,b.name as _name,b.sex,b.phone,b.money as lastest_money from bank_rechargephonebillrecord a left join bank_bankuser b on a.user_id=b.id order by a.create_time desc; "
             )]
     elif _type == 'buy_stock':
         content['datas'] = [
@@ -105,14 +105,14 @@ def manager_index(request):
              '购买后余额': row.balance, '用户账号': row.account,
              '用户名': row._name, '用户手机号码': row.phone, '用户当前余额': row.lastest_money,
              } for row in TransferAccountsRecord.objects.raw(
-                "select a.*, b.account,b.name as _name,b.sex,b.phone,b.money as lastest_money from bank_buystockrecord a left join bank_bankuser b on a.user_id=b.id; "
+                "select a.*, b.account,b.name as _name,b.sex,b.phone,b.money as lastest_money from bank_buystockrecord a left join bank_bankuser b on a.user_id=b.id order by a.create_time desc; "
             )]
     elif _type == 'all_app_user':
         content['datas'] = [{
             '用户ID': row.id, '加入时间': row.create_time.strftime('%Y-%m-%d %H:%M:%S'),
             '身份证号码': row.id_number, '账号': row.account, '实名用户': row.name, '性别': row.sex,
-            '手机号码': row.phone, 'qx': row.qx, '用户当前余额': row.money, '编辑': 'edit'
-        } for row in BankUser.objects.all()]
+            '手机号码': row.phone, 'qx': row.qx, '用户当前余额': row.money, '是否被禁止使用': '正常' if not row.is_blocked else '🈲️', '编辑': 'edit'
+        } for row in BankUser.objects.all().order_by('-create_time')]
     content['keys'] = list(content['datas'][0].keys())
     print(content['menus'])
     return render(request, 'manager_base.html', content)
