@@ -20,5 +20,6 @@ urlpatterns = [
     path('get_all_record/', views.get_all_record, name='get_all_record'),
     path('del_card/', views.del_card, name='del_card'),
     path('get_all_stock_record/', views.get_all_stock_record, name='get_all_stock_record'),
+    path('get_transfer_accounts_record/', views.get_transfer_accounts_record, name='get_transfer_accounts_record'),
 
 ]

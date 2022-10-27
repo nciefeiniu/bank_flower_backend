@@ -435,3 +435,18 @@ def get_all_stock_record(request):
                          for row in stock_record
                          ]
     return JsonResponse(resp_data)
+
+
+@check_login
+@require_GET
+def get_transfer_accounts_record(request):
+    resp_data = API_RESPONSE_FORMAT.copy()
+
+    user_id = request.session.get('user_id')
+
+    tar = TransferAccountsRecord.objects.filter(user_id=user_id).order_by('-create_time')
+    resp_data['data'] = [{'payee_name': row.payee_name, 'money': row.money, 'payee_phone': row.payee_phone,
+                          'create_time': row.create_time.strftime('%Y-%m-%d %H:%M:%S')}
+                         for row in tar
+                         ]
+    return JsonResponse(resp_data)
