@@ -246,15 +246,16 @@ def add_card(request):
         resp_data.update({'message': '身份证号码错误', 'success': False, 'code': 506})  # 身份证号码不正确
         return JsonResponse(resp_data)
 
-    if UserBankCard.objects.filter(user_id=user_id, card_no=card_no).exists():
+    if UserBankCard.objects.filter(user_id=user_id, card_no=card_no, is_delete=False).exists():
         resp_data.update({'message': '该银行卡已存在！', 'success': False, 'code': 508})  # 银行卡重复
         return JsonResponse(resp_data)
 
     card_info = UserBankCard.objects.filter(card_no=card_no, user_id=user_id, is_delete=True)
     if card_info.exists():
         resp_data.update({'message': 'ok'})
-        card_info[0].is_delete=False
-        card_info[0].save()
+        ubc = UserBankCard.objects.get(card_no=card_no, user_id=user_id, is_delete=True)
+        ubc.is_delete = False
+        ubc.save()
         return JsonResponse(resp_data)
 
     card = UserBankCard(user_id=user_id, card_no=card_no)
