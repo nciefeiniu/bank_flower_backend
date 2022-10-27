@@ -354,7 +354,7 @@ def get_all_card(request):
 @check_login
 @require_GET
 def del_card(request):
-    # 获取所有银行卡
+    # 删除某一张银行卡
     user_id = request.session.get('user_id')
     card_no = request.GET.get('card_no')
     resp_data = API_RESPONSE_FORMAT.copy()
