@@ -37,7 +37,7 @@ def register_account(request):
         'id_number': body_dict.get('_id')
     })
     for key in get_model_fields(BankUser):
-        if key in ('id', 'create_time', 'update_time'):
+        if key in ('id', 'create_time', 'update_time', 'is_blocked'):
             continue
         if not body_dict.get(key):
             resp_data.update({'message': f'{key} can not be empty!', 'success': False, 'code': 501})  # 数据提交不全
