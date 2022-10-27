@@ -250,6 +250,13 @@ def add_card(request):
         resp_data.update({'message': '该银行卡已存在！', 'success': False, 'code': 508})  # 银行卡重复
         return JsonResponse(resp_data)
 
+    card_info = UserBankCard.objects.filter(card_no=card_no, user_id=user_id, is_delete=True)
+    if card_info.exists():
+        resp_data.update({'message': 'ok'})
+        card_info[0].is_delete=False
+        card_info[0].save()
+        return JsonResponse(resp_data)
+
     card = UserBankCard(user_id=user_id, card_no=card_no)
     card.save()
     resp_data.update({'message': 'ok'})
@@ -342,7 +349,7 @@ def buy_stock(request):
 def get_all_card(request):
     # 获取所有银行卡
     user_id = request.session.get('user_id')
-    cards = UserBankCard.objects.filter(user_id=user_id)
+    cards = UserBankCard.objects.filter(user_id=user_id, is_delete=False)
     resp_data = API_RESPONSE_FORMAT.copy()
 
     resp_data.update({'message': '', 'data': [
