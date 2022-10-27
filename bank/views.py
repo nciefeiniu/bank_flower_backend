@@ -364,6 +364,12 @@ def del_card(request):
         return JsonResponse(resp_data)
 
     card = UserBankCard.objects.filter(user_id=user_id, card_no=card_no)
+
+    if not card.exists():
+        resp_data.update({'message': '删除错误，这张银行卡不属于你！', 'success': False, 'code': 511})  # 你咩有这张银行卡
+        return JsonResponse(resp_data)
+
+    card = card[0]
     card.is_delete = True
     card.save()
     resp_data.update({'message': '删除成功'})
