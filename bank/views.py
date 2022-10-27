@@ -450,3 +450,23 @@ def get_transfer_accounts_record(request):
                          for row in tar
                          ]
     return JsonResponse(resp_data)
+
+
+@check_login
+@require_GET
+def get_my_info(request):
+    resp_data = API_RESPONSE_FORMAT.copy()
+
+    user_id = request.session.get('user_id')
+    user = BankUser.objects.get(id=user_id)
+    resp_data['data'] = {
+        'account': user.account,
+        'name': user.name,
+        'sex': user.sex,
+        'phone': user.phone,
+        'moneys': float(user.money),
+        'id': user.id,
+        'id_number': user.id_number,
+        'qx': user.qx
+    }
+    return JsonResponse(resp_data)
