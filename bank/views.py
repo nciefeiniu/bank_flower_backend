@@ -18,7 +18,6 @@ from bank.default import API_RESPONSE_FORMAT
 from utils.compute_md5 import get_md5_salt
 from utils.check_login import check_login
 
-
 logger = logging.getLogger(__name__)
 
 
@@ -293,7 +292,6 @@ def recharge_phone_bill(request):
         resp_data.update({'message': '余额不足', 'success': False, 'code': 510})  # 余额不足
         return JsonResponse(resp_data)
 
-
     with transaction.atomic():
         user = BankUser.objects.get(id=user_id)
         user.money -= decimal.Decimal(money)
@@ -367,7 +365,7 @@ def del_card(request):
     card_no = request.GET.get('card_no')
     resp_data = API_RESPONSE_FORMAT.copy()
 
-    if not user_id or not card_no :
+    if not user_id or not card_no:
         resp_data.update({'message': '提交的信息不能为空', 'success': False, 'code': 501})  # 提交数据不全
         return JsonResponse(resp_data)
 
@@ -411,7 +409,9 @@ def get_all_record(request):
 
     resp_data = API_RESPONSE_FORMAT.copy()
 
-    data = [{'type': '充值', 'time': row.create_time, 'money': row.money, 'card_no': row.card_no} for row in recharge_record] + [{'type': '提现', 'time': row.create_time, 'money': row.money, 'card_no': row.card_no} for row in with_drawal_record]
+    data = [{'type': '充值', 'time': row.create_time, 'money': row.money, 'card_no': row.card_no} for row in
+            recharge_record] + [{'type': '提现', 'time': row.create_time, 'money': row.money, 'card_no': row.card_no} for
+                                row in with_drawal_record]
     new_data = sorted(data, key=lambda e: e.get('time'), reverse=True)
 
     resp_data.update({'message': '', 'data': new_data})
@@ -419,4 +419,19 @@ def get_all_record(request):
     for row in data:
         row['time'] = row['time'].strftime('%Y-%m-%d %H:%M:%S')
         row['name'] = user.name
+    return JsonResponse(resp_data)
+
+
+@check_login
+@require_GET
+def get_all_stock_record(request):
+    resp_data = API_RESPONSE_FORMAT.copy()
+
+    user_id = request.session.get('user_id')
+    stock_record = BuyStockRecord.objects.filter(user_id=user_id).order_by('-create_time')
+
+    resp_data['data'] = [{'stock_number': row.stock_number, 'money': row.money,
+                          'create_time': row.create_time.strftime('%Y-%m-%d %H:%M:%S')}
+                         for row in stock_record
+                         ]
     return JsonResponse(resp_data)

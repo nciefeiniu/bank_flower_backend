@@ -118,7 +118,10 @@ def manager_index(request):
             '手机号码': row.phone, 'qx': row.qx, '用户当前余额': row.money, '是否被禁止使用': '正常' if not row.is_blocked else '🈲️',
             '编辑': 'edit'
         } for row in BankUser.objects.all().order_by('-create_time')]
-    content['keys'] = list(content['datas'][0].keys())
+    if content['datas']:
+        content['keys'] = list(content['datas'][0].keys())
+    else:
+        content['keys'] = []
     logger.debug(content['menus'])
     return render(request, 'index.html', content)
 
