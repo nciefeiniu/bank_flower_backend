@@ -415,6 +415,8 @@ def get_all_record(request):
     new_data = sorted(data, key=lambda e: e.get('time'), reverse=True)
 
     resp_data.update({'message': '', 'data': new_data})
+    user = BankUser.objects.get(id=user_id)
     for row in data:
         row['time'] = row['time'].strftime('%Y-%m-%d %H:%M:%S')
+        row['name'] = user.name
     return JsonResponse(resp_data)
