@@ -22,5 +22,6 @@ urlpatterns = [
     path('get_all_stock_record/', views.get_all_stock_record, name='get_all_stock_record'),
     path('get_transfer_accounts_record/', views.get_transfer_accounts_record, name='get_transfer_accounts_record'),
     path('get_my_info/', views.get_my_info, name='get_my_info'),
+    path('change_my_info/', views.change_my_info, name='change_my_info'),
 
 ]

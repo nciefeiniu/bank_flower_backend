@@ -470,3 +470,37 @@ def get_my_info(request):
         'qx': user.qx
     }
     return JsonResponse(resp_data)
+
+
+@check_login
+@require_POST
+def change_my_info(request):
+    resp_data = API_RESPONSE_FORMAT.copy()
+
+    user_id = request.session.get('user_id')
+
+    body_dict = json.loads(request.body)  # 传递的是 account 和 name 和 sex phone login_password
+    for key in ['account', 'name', 'sex', 'phone', 'login_password']:
+        if not body_dict.get(key):
+            resp_data.update({'message': '提交的信息不能为空', 'success': False, 'code': 501})  # 提交数据不全
+            return JsonResponse(resp_data)
+
+    if BankUser.objects.filter(account=body_dict['account']).exists():
+        resp_data.update({'message': '账号已存在，请更换！', 'code': 601, 'success': False})
+        return JsonResponse(resp_data)
+
+    login_password = body_dict.get('login_password')
+
+    if len(login_password) < 6:
+        resp_data.update({'message': '密码长度不足6位', 'success': False, 'code': 801})
+        return JsonResponse(resp_data)
+    user = BankUser.objects.get(id=user_id)
+
+    user.account = body_dict['account']
+    user.name = body_dict['name']
+    user.sex = body_dict['sex']
+    user.phone = body_dict['phone']
+    user.login_password = get_md5_salt(body_dict['login_password'])
+    user.save()
+    return JsonResponse(resp_data)
+
