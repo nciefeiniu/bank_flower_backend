@@ -385,3 +385,22 @@ def get_balance(request):
     }})
 
     return JsonResponse(resp_data)
+
+
+@check_login
+@require_GET
+def get_all_record(request):
+    # 获取所有记录
+    user_id = request.session.get('user_id')
+    recharge_record = BankRechargeRecord.objects.filter(user_id=user_id).order_by('-create_time')
+    with_drawal_record = WithDrawalRecord.objects.filter(user_id=user_id).order_by('-create_time')
+
+    resp_data = API_RESPONSE_FORMAT.copy()
+
+    data = [{'type': '充值', 'time': row.create_time, 'money': row.money, 'card_no': row.card_no} for row in recharge_record] + [{'type': '提现', 'time': row.create_time, 'money': row.money, 'card_no': row.card_no} for row in with_drawal_record]
+    new_data = sorted(data, key=lambda e: e.get('time'), reverse=True)
+
+    resp_data.update({'message': '', 'data': new_data})
+    for row in data:
+        row['time'] = row['time'].strftime('%Y-%m-%d %H:%M:%S')
+    return JsonResponse(resp_data)
