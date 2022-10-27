@@ -15,7 +15,7 @@
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'bank_of_flower',  # 数据库名
+        'NAME': 'bank_of_flower',  # 数据库名。注意，请自己手动在数据库中创建一个名为这个的数据库
         'USER': 'django_app',  # 账号
         'PASSWORD': '123456',  # 密码
         'HOST': '127.0.0.1',  # HOST
